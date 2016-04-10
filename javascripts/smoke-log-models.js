@@ -22,7 +22,7 @@
         h : fix(dt.getHours().toString(),2),
         m : fix(dt.getMinutes().toString(),2),
         s : fix(dt.getSeconds().toString(),2),
-        f : parseInt(self.timeZone / -60).toString() + ':' + fix((self.timeZone % 60).toString(),2)
+        f : parseInt(self.timeZone / -60).toString() + ':' + fix((Math.abs(self.timeZone) % 60).toString(),2)
       }
 
       for(var k in v){
