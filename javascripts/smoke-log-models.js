@@ -26,7 +26,6 @@
       }
 
       for(var k in v){
-        console.log(fix(v[k].toString(),2));
         format = format.replace(k,v[k]);
       }
       return format;
@@ -62,7 +61,7 @@
   });
 
   SmokeLog.addModule('Models.Place',{
-    all:{Home:'Home',Outside:'Outside','Smoking Area':'Smoking Area'},
+    all:{Home:'Home',Outside:'Outside'},
     keys:{mobile:'Outside',pc:'Home'},
     now:'Auto',
     scope:{},
@@ -84,7 +83,7 @@
     },
     onNowPlaceUpdated:[],
     onPlaceListUpdated:[],
-    addNewPlace:function(newPlace){
+    addPlace:function(newPlace){
       this.all[newPlace] = newPlace;
       var all = this.all;
       var keys = this.keys
@@ -94,12 +93,13 @@
       });
     },
     removePlace:function(removePlace){
+      console.log(removePlace);
       delete this.all[removePlace];
       var all = this.all;
       var keys = this.keys
       var scope = this.scope;
       this.onPlaceListUpdated.forEach(function(uf){
-        uf(scope,'remove',all,keys,{remvoed:removePlace});
+        uf(scope,'remove',all,keys,{removed:removePlace});
       });
     },
     setPlaceAs:function(device,placeName){
@@ -108,8 +108,15 @@
       }else{
         var key = 'pc';
       }
-      if(this.keys['mobile'] !== this.all[placeName] && this.keys['pc'] !== this.all[placeName])
-      this.keys[key] = this.all[placeName];
+     if(key === 'mobile' && this.keys['pc'] === this.all[placeName]){
+        this.keys['pc'] = this.keys['mobile'];
+        this.keys['mobile'] = this.all[placeName];
+      }else if(key === 'pc' && this.keys['mobile'] === this.all[placeName]){
+        this.keys['mobile'] = this.keys['pc'];
+        this.keys['pc'] = this.all[placeName];
+      }else{
+        this.keys[key] = this.all[placeName];
+      }
       var all = this.all;
       var keys = this.keys
       var scope = this.scope;
