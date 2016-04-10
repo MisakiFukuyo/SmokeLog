@@ -9,6 +9,9 @@ html(lang='ja')
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', integrity='sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS', crossorigin='anonymous')
     script(src='./javascripts/smoke-log-init.js')
     script(src='./javascripts/smoke-log-models.js')
+    script(src='./javascripts/smoke-log-viewmodels.js')
+    script(src='./javascripts/smoke-log-controllers.js')
+    script(src='./javascripts/smoke-log-views.js')
   body
     .container
       .row
@@ -19,18 +22,13 @@ html(lang='ja')
         .col-md-10.col-md-offset-1
           .row.top-offset-17
             .col-md-5.col-md-offset-1
-              button.btn.btn-danger.btn-block Smoked
+              button.btn.btn-danger.btn-block.smoke-log-btn-smoked Smoked
             .col-md-5
               button.btn.btn-primary.disabled.btn-block Sync Log
           .row.top-offset-15
             .col-md-12
-              table.table.table-striped
-                tr
+              table.table.table-striped.smoke-log-table
+                tr.smoke-log-table-header
                   th N-th Smoked
                   th Time
                   th Place
-                tr
-                  td.smoke-log-nth 1
-                  td.smoke-log-time
-                    time(datetime='2016-04-10 15:05+9:00') 2016.04.10 15:05
-                  td.smoke-log-place Home

@@ -1,16 +1,59 @@
 (function(){
-  function SmokeLogModel(datetime,place){
+  function SmokeLogModel(scope,datetime){
+    self = this;
+    this.scope = scope;
     this.nth = 0;
-    this.time = datetime.getTime() / 1000;
-    this.timeZone = -datetime.getTimezoneOffset() / 60;
-    this.place = place;
-    this.onUpdateNth = []
+    this.time = parseInt(datetime.getTime() / 1000);
+    this.formatedTime = function(){
+      var format = 'y.n.d h:m:s+f';
+      var dt = new Date(self.time * 1000);
+      function fix(n,m){
+        for(var i = n.length;i<m;i++){
+          n = '0' + n
+        }
+        return n;
+      }
+
+      var v = {
+        y : dt.getFullYear(),
+        n : fix((dt.getMonth()+1).toString(),2),
+        d : fix(dt.getDate().toString(),2),
+        w : fix(dt.getDay().toString(),2),
+        h : fix(dt.getHours().toString(),2),
+        m : fix(dt.getMinutes().toString(),2),
+        s : fix(dt.getSeconds().toString(),2),
+        f : parseInt(self.timeZone / -60).toString() + ':' + fix((self.timeZone % 60).toString(),2)
+      }
+
+      for(var k in v){
+        console.log(fix(v[k].toString(),2));
+        format = format.replace(k,v[k]);
+      }
+      return format;
+    }
+    this.timeZone = datetime.getTimezoneOffset()
+    this.place = '';
+    this.onNthUpdated = [];
     this.setNth = function(n){
       var old = this.nth;
       this.nth = n;
-      this.onUpdateNth.forEach(function(uf){
-        uf(n,old);
+      this.onNthUpdated.forEach(function(uf){
+        uf(self.scope,n,old);
       });
+    }
+    this.onPlaceUpdated = [];
+    this.setPlace = function(newPlace){
+      var old = this.place;
+      this.place = newPlace;
+      this.onPlaceUpdated.forEach(function(uf){
+        uf(self.scope,newPlace,old);
+      });
+    }
+    this.onUpdated = [];
+    this.update = function(){
+      this.onUpdated.forEach(function(uf){
+        uf(self);
+      })
     }
   }
 
@@ -62,8 +105,10 @@
 
   SmokeLog.addModule('Models.Stats',{
     logs:[],
-    onUpdateNth:[],
-    add:function(date,place){
+    onNthUpdated:[],
+    onPlaceUpdated:[],
+    onLogsUpdated:[],
+    add:function(scope,date,place){
       var needSort = false;
       if(date === undefined){
         date = new Date();
@@ -72,21 +117,30 @@
       if(place === undefined){
         place = SmokeLog.Models.Place.getPlaceByUA()
       }
-      var newLog = new SmokeLog.Models.Smoke(date, place);
-      newLog.onUpdateNth = onUpdateNth.slice();
+      var newLog = new SmokeLog.Models.Smoke.Log(scope, date);
+      newLog.onNthUpdated = this.onNthUpdated.slice();
+      newLog.onPlaceUpdated = this.onPlaceUpdated.slice();
+      newLog.onUpdated = this.onLogsUpdated.slice();
+
       this.logs.push(newLog);
+
       if(needSort){
         this.sortByTime();
         var n = 1;
         this.logs.forEach(function(l){
           l.setNth(n++);
         });
+      }else{
+        newLog.setNth(newLog.length);
       }
+      newLog.setPlace(place);
+      newLog.update();
+      return newLog;
     },
     sortByTime:function(){
       this.logs.sort(function(a,b){
-        var at = a.time - a.timeZone * 3600;
-        var bt = b.time - b.timeZone * 3600;
+        var at = a.time + a.timeZone * 60;
+        var bt = b.time + b.timeZone * 60;
         return at - bt;
       })
     }
