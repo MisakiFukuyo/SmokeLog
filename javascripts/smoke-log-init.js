@@ -2,18 +2,18 @@
   var rootModuleName = 'SmokeLog'
   if(window[rootModuleName] === undefined){
     window[rootModuleName]= {};
-      window[rootModuleName].addModule = function(entryPoint,moduleBody){
-      if(typeof moduleBody === 'object'){
-        throw 'moduleBody is not object';
+    window[rootModuleName].addModule = function(entryPoint,moduleBody){
+      if(typeof moduleBody !== 'object'){
+        console.error('moduleBody is not object');
       }
       if(typeof entryPoint === 'string'){
         var epsArr = entryPoint.split('.');
         var target = window[rootModuleName];
         for(var i=0;i<epsArr.length-1;i++){
-          target = target[epsArr[i]]
-          if(typeof target !== 'object'){
-            target = {}
+          if(typeof target[epsArr[i]] !== 'object'){
+            target[epsArr[i]] = {}
           }
+          target = target[epsArr[i]]
         }
         if(target[epsArr[epsArr.length-1]] === undefined){
           target[epsArr[epsArr.length-1]] = moduleBody
@@ -23,10 +23,10 @@
             target[k] = moduleBody[k];
           }
         }else{
-          throw 'already exist anything but not object at entryPoint';
+          console.error('already exist anything but not object at entryPoint');
         }
       }else{
-        throw 'entryPoint is not string.';
+        console.error('entryPoint is not string.');
       }
     }
   }else{
