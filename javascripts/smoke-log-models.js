@@ -62,8 +62,10 @@
   });
 
   SmokeLog.addModule('Models.Place',{
-    all:{Home:'Home',Outside:'Outside'},
+    all:{Home:'Home',Outside:'Outside','Smoking Area':'Smoking Area'},
     keys:{mobile:'Outside',pc:'Home'},
+    now:'Auto',
+    scope:{},
     getPlaceByUA:function(){
       if(SmokeLog.Utils.isMobile()){
         return this.all[this.keys.mobile];
@@ -71,35 +73,57 @@
         return this.all[this.keys.pc];
       }
     },
-    changeTo:function(newPlace){
-      return this.all[newPlace];
+    setNowPlace:function(newPlace){
+      this.now = newPlace;
+      var all = this.all;
+      var keys = this.keys;
+      var scope = this.scope;
+      this.onNowPlaceUpdated.forEach(function(uf) {
+        uf(scope,newPlace)
+      })
     },
+    onNowPlaceUpdated:[],
     onPlaceListUpdated:[],
     addNewPlace:function(newPlace){
       this.all[newPlace] = newPlace;
+      var all = this.all;
+      var keys = this.keys
+      var scope = this.scope;
       this.onPlaceListUpdated.forEach(function(uf){
-        uf(newPlace,this.all);
+        uf(scope,'add',all,keys,{added:newPlace});
       });
     },
     removePlace:function(removePlace){
       delete this.all[removePlace];
+      var all = this.all;
+      var keys = this.keys
+      var scope = this.scope;
       this.onPlaceListUpdated.forEach(function(uf){
-        uf(removePlace,this.all);
+        uf(scope,'remove',all,keys,{remvoed:removePlace});
       });
     },
-    onPlaceAssociatingUpdate:[],
-    setPlaceAs:function(isMobile,placeName){
-      if(isMobile){
+    setPlaceAs:function(device,placeName){
+      if(device === 'mobile'){
         var key = 'mobile';
       }else{
         var key = 'pc';
       }
-      var old = this.keys[key];
+      if(this.keys['mobile'] !== this.all[placeName] && this.keys['pc'] !== this.all[placeName])
       this.keys[key] = this.all[placeName];
-      var newKey = this.keys[key];
-      this.onPlaceAssociatingUpdate.forEach(function(uf){
-        uf(newKey,old,key)
-      })
+      var all = this.all;
+      var keys = this.keys
+      var scope = this.scope;
+      this.onPlaceListUpdated.forEach(function(uf){
+        uf(scope,'key',all,keys,{changed:key});
+      });
+    },
+    init:function(){
+      var all = this.all;
+      var keys = this.keys;
+      var scope = this.scope;
+      this.onPlaceListUpdated.forEach(function(uf){
+        uf(scope,'init',all,keys,{});
+      });
     }
   });
 
@@ -115,7 +139,11 @@
         needSort = true;
       }
       if(place === undefined){
-        place = SmokeLog.Models.Place.getPlaceByUA()
+        if(SmokeLog.Models.Place.now === 'Auto'){
+          place = SmokeLog.Models.Place.getPlaceByUA();
+        }else{
+          place = SmokeLog.Models.Place.now;
+        }
       }
       var newLog = new SmokeLog.Models.Smoke.Log(scope, date);
       newLog.onNthUpdated = this.onNthUpdated.slice();

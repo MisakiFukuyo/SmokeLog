@@ -10,8 +10,8 @@ html(lang='ja')
     script(src='./javascripts/smoke-log-init.js')
     script(src='./javascripts/smoke-log-models.js')
     script(src='./javascripts/smoke-log-viewmodels.js')
-    script(src='./javascripts/smoke-log-controllers.js')
     script(src='./javascripts/smoke-log-views.js')
+    script(src='./javascripts/smoke-log-controllers.js')
   body
     .container
       .row
@@ -25,10 +25,27 @@ html(lang='ja')
               button.btn.btn-danger.btn-block.smoke-log-btn-smoked Smoked
             .col-md-5
               button.btn.btn-primary.disabled.btn-block Sync Log
+          .row.top-offset-7
+            .col-md-10.col-md-offset-1
+              .row
+                .col-md-6
+                  p.bg-info.top-offset-5
+                    span Now place : 
+                    span.smoke-log-now-place Auto
+                .col-md-6.dropdown
+                  button.btn.btn-default.btn-block.dropdown-toggle(data-toggle='dropdown') Place options
+                    span.caret
+                  .row.dropdown-menu.smoke-log-place-dropdown
+                    #SmokeLogPlaceList.col-md-12
+                      .row.smoke-log-place-auto
+                        .col-md-12.smoke-log-place-title
+                         button.btn.btn-default.btn-block Auto
           .row.top-offset-15
             .col-md-12
-              table.table.table-striped.smoke-log-table
-                tr.smoke-log-table-header
-                  th N-th Smoked
-                  th Time
-                  th Place
+              table#SmokeLogTable.table.table-striped
+                tbody
+                  tr.smoke-log-table-header
+                    th N-th Smoked
+                    th Time
+                    th Place
+                    th Delete
